@@ -104,7 +104,6 @@
     }
     
     function initEventModule() {
-        
         return {
             Event: function Event() {
                 this.name = 'UNKNOWN'
@@ -176,6 +175,58 @@
         }
     }
     
+    function initUtilModule() {
+        return {
+            isNullOrUndefined: function isNullOrUndefined(value) {
+                return typeof value === 'undefined' || value === null;
+            },
+
+            isScalar: function isScalar(value) {
+                return (/string|number|boolean/).test(typeof value);
+            },
+
+            isStringOrNumber: function isStringOrNumber(value) {
+                return (/string|number/).test(typeof value);
+            },
+
+            isWindow: function isWindow( obj ) {
+                return obj != null && obj === obj.window;
+            },
+
+            isArray: function isArray(obj) {
+                var length = "length" in obj && obj.length,
+                    type = typeof obj;
+
+                if ( type === "function" || lib.util.isWindow( obj ) ) {
+                    return false;
+                }
+
+                if ( obj.nodeType === 1 && length ) {
+                    return true;
+                }
+
+                return type === "array" || length === 0 ||
+                    typeof length === "number" && length > 0 && ( length - 1 ) in obj;
+            },
+             
+            extend: function extend(defaults, options) {
+                var extended = {};
+                var prop;
+                for (prop in defaults) {
+                    if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+                        extended[prop] = defaults[prop];
+                    }
+                }
+                for (prop in options) {
+                    if (Object.prototype.hasOwnProperty.call(options, prop)) {
+                        extended[prop] = options[prop];
+                    }
+                }
+                return extended;
+            }
+        };
+    }
+
     function initLibrary() {
         
         if (libraryName && typeof global[libraryName] !== 'undefined')
@@ -187,6 +238,7 @@
         lib.class = initClassModule();
         lib.event = initEventModule();
         lib.EventBus = initEventBus();
+        lib.util = initUtilModule();
     }
     
     var classHelper = function(constructor) {
