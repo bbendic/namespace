@@ -156,7 +156,7 @@
         return {
             subscribe: function subscribe (topic, listener) {
                 if ( typeof listener != 'function'){
-                    return false; // throw error
+                    lib.error.throw('Bad subsciption listener');
                 }
                  
                 if(!topics[topic]) 
@@ -169,7 +169,7 @@
                     return;
 
                 topics[topic].forEach(function(listener) {
-                    listener(data || {});
+                    listener(data || {}, topic);
                 });
             }
         }
@@ -185,15 +185,15 @@
                 return (/string|number|boolean/).test(typeof value);
             },
 
-            isStringOrNumber: function isStringOrNumber(value) {
-                return (/string|number/).test(typeof value);
-            },
-
             isWindow: function isWindow( obj ) {
                 return obj != null && obj === obj.window;
             },
 
             isArray: function isArray(obj) {
+                if (lib.util.isNullOrUndefined(obj) || lib.util.isScalar(obj)) {
+                    return false;
+                }
+                
                 var length = "length" in obj && obj.length,
                     type = typeof obj;
 
@@ -209,7 +209,7 @@
                     typeof length === "number" && length > 0 && ( length - 1 ) in obj;
             },
              
-            extend: function extend(defaults, options) {
+            applyDefaults: function extend(defaults, options) {
                 var extended = {};
                 var prop;
                 for (prop in defaults) {
@@ -223,6 +223,16 @@
                     }
                 }
                 return extended;
+            },
+            
+            optionValue: function optionValue(options, parameter, defaultValue) {
+                if (lib.util.isNullOrUndefined(options))
+                    return defaultValue;
+
+                if (typeof options[parameter] === 'undefined')
+                    return defaultValue;
+
+                return options[parameter];
             }
         };
     }

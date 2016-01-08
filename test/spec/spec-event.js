@@ -3,10 +3,17 @@ describe("event module", function () {
     afterEach(function() {namespace (null);});
     
     
-    it("should mixin function into the class", function () {
+    it("should mixin Event handling mechanism into the class", function () {
+        function Clazz1() {}
+        lib.class (Clazz1, 'lib.test')
+        .mixin(lib.event.EventSupport);
         
-        var flag = null
-        
+        expect (Clazz1.prototype.on).toEqual(lib.event.EventSupport.on);
+        expect (Clazz1.prototype.off).toEqual(lib.event.EventSupport.off);
+        expect (Clazz1.prototype.dispatchEvent).toEqual(lib.event.EventSupport.dispatchEvent);
+    });
+    
+    it("should be able to dispatch and handle dispatched events", function () {
         function Clazz1() {}
         lib.class (Clazz1, 'lib.test')
         .mixin(lib.event.EventSupport);
@@ -51,5 +58,4 @@ describe("event module", function () {
         
          new lib.test.Clazz3().dispatchEvent();
     });
-
 });
