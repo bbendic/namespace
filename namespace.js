@@ -90,10 +90,12 @@
             if (typeof constructor !== 'function')
                 lib.error.throw ('Class constructor must be a function');
 
-            if (typeof constructor.name !== 'string' || !constructor.name)
+            assureFunctionName(constructor);
+            
+            if (!constructor.name)
                 lib.error.throw ('Can not use anonymus function for constructor');
 
-            ns = namespace(ns);
+            var ns = namespace(ns);
 
             if (ns[constructor.name])
                 lib.error.throw ('Class is already defined ' + getCanonicalName(constructor.name));
@@ -272,6 +274,7 @@
         }
 
         if (typeof source === 'function') {
+            assureFunctionName(source);
             if (!source.name)
                 lib.error.throw ('Can not mixin with anonymus function');
             this._cs.prototype[source.name] = source;
@@ -293,6 +296,8 @@
 
         if (!anything)
             lib.error.throw ('Bad name');
+        
+        assureFunctionName(anything);
         
         var canonicalName = findPropertyNameRecursive(lib, anything, libraryName),
             errorMessage;
@@ -317,12 +322,19 @@
     };
 
     function endsWith(str, suffix) {
-        return (typeof str === 'string') && str.indexOf(suffix, str.length - suffix.length) !== -1;
+        return (typeof str === 'string') && (typeof suffix === 'string') && (str.indexOf(suffix, str.length - suffix.length) !== -1);
     }
 
     function findPropertyNameRecursive(object, property, path) {
         var prop, pathEx, childProp;
-        for (prop in object) {
+        
+        if (typeof object != 'object')
+            return null;
+
+        if (typeof property === 'function')
+            property = property.name;
+
+        for (var prop in object) {
             if (object.hasOwnProperty(prop)){
                 pathEx = path + '.' + prop;
                 if (endsWith (pathEx, property) || object[prop] === property)
@@ -335,6 +347,12 @@
             }
         }
         return null;
+    }
+    
+    function assureFunctionName(fn) {
+        if (typeof fn === 'function' && typeof fn.name !== 'string') {
+            fn.name = fn.toString().match(/^function\s?([^\s(]*)/)[1];
+        }
     }
     
 })(window);
